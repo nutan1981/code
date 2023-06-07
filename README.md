@@ -1739,7 +1739,152 @@ int main()
 	return 0;
 }
 
+####################################################################################################
 
+#include <iostream>
+#include <fstream>
+#include <string>
 
+using namespace std;
+
+class student
+{
+    struct stud
+    {
+        int roll;
+        string name;
+        string div;
+        string add;
+    };
+
+    stud rec;
+
+public:
+    void create();
+    void display();
+    int search();
+    void Delete();
+};
+
+void student::create()
+{
+    char ans;
+    ofstream fout("stud.txt", ios::out | ios::binary);
+    do
+    {
+        cout << "\n\tEnter Roll No of Student: ";
+        cin >> rec.roll;
+        cout << "\n\tEnter a Name of Student: ";
+        cin >> rec.name;
+        cout << "\n\tEnter a Division of Student: ";
+        cin >> rec.div;
+        cout << "\n\tEnter the Address of Student: ";
+        cin >> rec.add;
+        fout.write(reinterpret_cast<char *>(&rec), sizeof(stud));
+        cout << "\n\tDo You Want to Add More Records (Y/N): ";
+        cin >> ans;
+    } while (ans == 'y' || ans == 'Y');
+    fout.close();
+}
+
+void student::display()
+{
+    ifstream fin("stud.txt", ios::in | ios::binary);
+    cout << "\n\tThe Contents of the File are:\n";
+    cout << "\n\tRoll\tName\tDiv\tAddress";
+    while (fin.read(reinterpret_cast<char *>(&rec), sizeof(stud)))
+    {
+        if (rec.roll != -1)
+            cout << "\n\t" << rec.roll << "\t" << rec.name << "\t" << rec.div << "\t" << rec.add;
+    }
+    fin.close();
+}
+
+int student::search()
+{
+    int r;
+    cout << "\n\tEnter a Roll No: ";
+    cin >> r;
+
+    ifstream fin("stud.txt", ios::in | ios::binary);
+    int i = 0;
+    bool found = false;
+    while (fin.read(reinterpret_cast<char *>(&rec), sizeof(stud)))
+    {
+        if (rec.roll == r)
+        {
+            cout << "\n\tRecord Found...\n";
+            cout << "\n\tRoll\tName\tDiv\tAddress";
+            cout << "\n\t" << rec.roll << "\t" << rec.name << "\t" << rec.div << "\t" << rec.add;
+            found = true;
+            break;
+        }
+        i++;
+    }
+    fin.close();
+
+    if (!found)
+        return -1;
+    else
+        return i;
+}
+
+void student::Delete()
+{
+    int pos = search();
+    if (pos == -1)
+    {
+        cout << "\n\tRecord Not Found";
+        return;
+    }
+
+    fstream f("stud.txt", ios::in | ios::out | ios::binary);
+    f.seekg(pos * sizeof(stud));
+    rec.roll = -1;
+    rec.name = "NULL";
+    rec.div = "NULL";
+    rec.add = "NULL";
+    f.write(reinterpret_cast<char *>(&rec), sizeof(stud));
+    f.close();
+
+    cout << "\n\tRecord Deleted";
+}
+
+int main()
+{
+    student obj;
+    int ch, key;
+    char ans;
+    do
+    {
+        cout << "\n\t***** Student Information *****";
+        cout << "\n\t1. Create\n\t2. Display\n\t3. Delete\n\t4. Search\n\t5. Exit";
+        cout << "\n\t..... Enter Your Choice: ";
+        cin >> ch;
+        switch (ch)
+        {
+        case 1:
+            obj.create();
+            break;
+	case 2:
+            obj.display();
+            break;
+        case 3:
+            obj.Delete();
+            break;
+        case 4:
+            key = obj.search();
+            if (key == -1)
+                cout << "\n\tRecord Not Found...\n";
+            break;
+        case 5:
+            break;
+        }
+        cout << "\n\t..... Do You Want to Continue in Main Menu (Y/N): ";
+        cin >> ans;
+    } while (ans == 'y' || ans == 'Y');
+
+    return 0;
+}
 
 
